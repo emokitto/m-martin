@@ -1,0 +1,117 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // ============================================
+    // HELPER FUNCTIONS
+    // ============================================
+    
+    /**
+     * Verifica se o usuário atual é um administrador autenticado.
+     * 
+     * IMPORTANTE: Esta implementação simplificada considera qualquer usuário 
+     * autenticado como admin. Isso é adequado APENAS para desenvolvimento/testes.
+     * 
+     * PARA PRODUÇÃO, VOCÊ DEVE implementar uma das seguintes opções:
+     * 
+     * Opção 1 - Custom Claims (RECOMENDADO):
+     *   function isAdmin() {
+     *     return request.auth != null && request.auth.token.admin == true;
+     *   }
+     * 
+     * Opção 2 - Lista de UIDs específicos:
+     *   function isAdmin() {
+     *     return request.auth != null && 
+     *            request.auth.uid in ['uid-admin-1', 'uid-admin-2'];
+     *   }
+     * 
+     * Sem essa mudança, QUALQUER usuário autenticado terá privilégios de admin!
+     */
+    function isAdmin() {
+      return request.auth != null;
+      // TODO: Substituir por verificação real de admin antes de produção
+    }
+    
+    // NOTA: Validações de pedido (campos obrigatórios, preços, estoque)
+    // são agora realizadas pela Cloud Function createOrder no servidor,
+    // garantindo que preços não possam ser manipulados pelo cliente.
+    
+    // ============================================
+    // COLEÇÃO: products
+    // ============================================
+    /**
+     * Regras para a coleção de produtos:
+     * - Leitura: Pública (qualquer usuário pode ver o catálogo)
+     * - Escrita: Apenas Admin autenticado
+     * 
+     * SEGURANÇA: Decrementos de estoque são gerenciados exclusivamente
+     * via Cloud Functions (createOrder), eliminando a possibilidade de
+     * manipulação direta por clientes não-autenticados.
+     */
+    match /products/{productId} {
+      // Leitura: Pública - qualquer um pode ver produtos
+      allow read: if true;
+      
+      // Escrita completa: Somente Admin (estoque gerenciado via Cloud Functions)
+      allow create, update, delete: if isAdmin();
+    }
+    
+    // ============================================
+    // COLEÇÃO: orders
+    // ============================================
+    /**
+     * Regras para a coleção de pedidos:
+     * - Criação: Apenas via Cloud Functions (Admin SDK) — não há permissão direta
+     * - Leitura: ESTRITA - Apenas Admin pode ler pedidos
+     * - Atualização/Exclusão: Apenas Admin pode editar ou deletar pedidos
+     * 
+     * SEGURANÇA: Pedidos são criados exclusivamente pela Cloud Function createOrder,
+     * que valida preços no servidor e gerencia estoque atomicamente.
+     * Clientes não podem criar, ler ou modificar pedidos diretamente.
+     */
+    match /orders/{orderId} {
+      // Todas as operações: Apenas Admin
+      // Criação de pedidos é feita via Cloud Functions (Admin SDK bypassa estas regras)
+      allow read, write: if isAdmin();
+    }
+    
+    // ============================================
+    // COLEÇÃO: categories
+    // ============================================
+    /**
+     * Regras para a coleção de categorias:
+     * - Leitura: Pública
+     * - Escrita: Apenas Admin
+     */
+    match /categories/{categoryId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+    
+    // ============================================
+    // COLEÇÃO: cushionKit
+    // ============================================
+    /**
+     * Regras para a configuração do kit de almofadas:
+     * - Leitura: Pública
+     * - Escrita: Apenas Admin
+     */
+    match /cushionKit/{kitId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+    
+    // ============================================
+    // COLEÇÃO: paymentSettings
+    // ============================================
+    /**
+     * Regras para configurações de pagamento (Mercado Pago, etc.):
+     * - Leitura: Apenas Admin (contém configurações sensíveis)
+     * - Escrita: Apenas Admin
+     */
+    match /paymentSettings/{settingId} {
+      allow read, write: if isAdmin();
+    }
+  }
+}

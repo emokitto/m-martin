@@ -1,0 +1,120 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Raleway', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  min-height: 100vh;
+}
+
+.app-wrapper {
+  width: 100%;
+  min-height: 100vh;
+}
+
+.catalog-container {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 2rem 2rem 4rem;
+}
+
+.category-group {
+  margin-bottom: 2rem;
+  position: relative;
+}
+
+.products-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+  gap: 1.25rem;
+  margin-top: 1.25rem;
+}
+
+.site-footer {
+  background: linear-gradient(152deg, #483726 0%, #281c12 100%);
+  padding: 4rem 2rem;
+  color: #e8e1d4;
+}
+
+.footer-content {
+  max-width: 1400px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 3rem;
+  padding: 2rem;
+  border-radius: 20px;
+  background: rgba(72, 55, 38, 0.28);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(217, 177, 84, 0.08);
+}
+
+.footer-info h3 {
+  font-size: 1.75rem;
+  margin-bottom: 1rem;
+  font-weight: 700;
+  font-family: 'Cormorant Garamond', serif;
+  color: #d9b154;
+}
+
+.footer-slogan {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.15rem;
+  font-style: italic;
+  color: #d9b154;
+  opacity: 0.85;
+}
+
+.footer-cta {
+  font-weight: 600;
+  color: #d9b154;
+}
+
+.footer-info p,
+.footer-contact p {
+  margin: 0.5rem 0;
+  opacity: 0.95;
+}
+
+.footer-contact {
+  text-align: right;
+}
+
+@media (max-width: 768px) {
+  .app-wrapper {
+    /* Top padding: logo height (40px) + top/bottom padding (0.75rem * 2 = 1.5rem ≈ 24px) + border (1px) ≈ 65px, rounded to 60px for breathing room */
+    padding-top: 60px;
+    /* Bottom padding: nav height (~50px) + padding (0.75rem * 2 ≈ 24px) + border (1px) ≈ 75px, rounded to 65px */
+    padding-bottom: 65px;
+  }
+
+  .catalog-container {
+    padding: 1.5rem 1rem;
+  }
+  
+  .products-grid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+  
+  .footer-content {
+    grid-template-columns: 1fr;
+    gap: 2rem;
+  }
+  
+  .footer-contact {
+    text-align: left;
+  }
+}
+
+@media (min-width: 769px) and (max-width: 1024px) {
+  .products-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
